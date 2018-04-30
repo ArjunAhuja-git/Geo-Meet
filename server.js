@@ -11,7 +11,7 @@ var center = geolib.getCenter([
 console.log(center)
 
 var googleMapsClient = require('@google/maps').createClient({
-  key: 'AIzaSyBil0AHMoPSe3nj0IEr-92ezrDHejb__6A'
+  key: 'AIzaSyBr7DVrKhFlYQaFcZi29G2J_u-TUh6HNs4'
 });
 googleMapsClient.distanceMatrix({
 				origins: ['17.594703,78.123105'],
@@ -217,11 +217,18 @@ function getBestLocation(groupID) {
       location: [parseFloat(center.latitude),parseFloat(center.longitude)],
       radius: 5000,
       opennow: true,
-      type: 'restaurant',
+      type: 'cafe',
     },  function(err, response) {
 	  if (!err) {
 	  	console.log("enter?");
 	    results = response.json.results;
+	    if(results.length == 0){
+	    	var errorMessage ="0 results found";
+	    	for(var i = 0;i<groupConnections[groupID].length;i++){
+				groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC", error:errorMessage}));
+			}
+			return;
+	    }
 	    if(results.length>5)
 	    	results = results.slice(0,5);
 	    console.log("abe kya bakwas hai?");
