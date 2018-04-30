@@ -7,6 +7,29 @@
 <script
         src="./node_modules/jquery-clock-timepicker/jquery-clock-timepicker.min.js">
 </script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
         </head>
 <body>
     <script type="text/javascript">
@@ -79,7 +102,10 @@
                     }
                 } else if(obj.type == 'LC'){
                     if(obj.error == null){
+                        document.getElementById('loading').style.display="none";
                         document.getElementById('map').style.display = 'block';
+                        console.log(document.getElementById('map').style.display);
+
                         var infowindow = new google.maps.InfoWindow();
                         console.log(obj.message);
                         var map = new google.maps.Map(document.getElementById('map'), {
@@ -199,6 +225,7 @@
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
+            document.getElementById('loading').style.display="block";
         };
 
         function joinGroup(){
@@ -240,6 +267,7 @@
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
+            document.getElementById('loading').style.display="block";
         };
     </script>
     <style type="text/css">
@@ -299,6 +327,7 @@
       $('.required').clockTimePicker({required:true});
     });
   </script>
+
 <div class="split left">
   <div class="centered">
     <h1><i>Geo-Meet</i></h1>
@@ -364,9 +393,15 @@
     </p>
 </div>
 </div>
+
 <div class="split right">
+
   <div class="centered">
-    <div id="map" style=" width: 500px; height: 400px; display:none;" ></div>
+    <div id = "loading" style= "display:none;">
+    <h2>Loading</h2>
+
+    <div class="loader"></div></div>
+    <div id="map" style=" width: 600px; height: 800px; display:none;" ></div>
       </div>
 </div>
 </body>
