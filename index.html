@@ -1,7 +1,7 @@
 <html>
 <head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0x1Phg54XnXL_XEQKbFGEZssH6zUf5RQ&libraries=places">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr7DVrKhFlYQaFcZi29G2J_u-TUh6HNs4&libraries=places">
         </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script
@@ -59,6 +59,8 @@
                     document.getElementById('submitCGButton').style.display = "none";
                     document.getElementById('CG_departure_time').style.display = "none";
                     document.getElementById('CG_departure_time_text').innerHTML = obj.time;
+                    document.getElementById('CG_meeting_place_text').innerHTML = obj.place;
+                    document.getElementById('CG_meeting_place').style.display = "none";
                 }
                 else if(obj.type == 'JG'){
                     if(obj.error == null){
@@ -153,8 +155,9 @@
             var latitude = document.getElementById('CG_lat').value;
             var longitude = document.getElementById('CG_lng').value;
             var depart_time = document.getElementById('CG_departure_time').value;
-            console.log(depart_time);
-            var msg = JSON.stringify({groupSize:group_size,lat:latitude,lng:longitude,time:depart_time});
+            var meeting_place_type = document.getElementById('CG_meeting_place').value;
+            console.log(meeting_place_type);
+            var msg = JSON.stringify({groupSize:group_size,lat:latitude,lng:longitude,time:depart_time,place:meeting_place_type});
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
@@ -172,8 +175,8 @@
             var group_id = document.getElementById('JG_id').value;
             var latitude = document.getElementById('JG_lat').value;
             var longitude = document.getElementById('JG_lng').value;
-            var depat_time = document.getElementById('JG_departure_time').value;
-            var msg = JSON.stringify({groupID:group_id,lat:latitude,lng:longitude,time:depat_time});
+            var depart_time = document.getElementById('JG_departure_time').value;
+            var msg = JSON.stringify({groupID:group_id,lat:latitude,lng:longitude,time:depart_time});
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
@@ -210,6 +213,14 @@
                 <i>Departure time:</i>
                 <input class="time required" id="CG_departure_time" type="text" value="08:45" style="display:inline;"/>
                 <i id="CG_departure_time_text" style="display:inline;"></i>
+            </p>
+            <p>
+                <i>Meeting Place Type: </i>
+                <select id="CG_meeting_place" style="display:inline;">
+                  <option value="restaurant">Resturant</option>
+                  <option value="cafe">Cafe</option>
+                </select>
+                <i id="CG_meeting_place_text" style="display:inline;"></i>
             </p>
         </p>
     </form>

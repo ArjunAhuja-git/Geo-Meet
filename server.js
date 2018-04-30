@@ -51,6 +51,7 @@ var groups = {};
 var groups_time = {};
 var groupSize = {};
 var groupConnections = {};
+var groups_place_type = {};
 
 var groupID = 1;
 
@@ -69,9 +70,6 @@ function getCenter(locationArray){
 	return geolib.getCenter(locationArray);
 }
 
-var mapping_destination_location_to_object = {};
-var mapping_destination_location_to_maxTime = {};
-
 function getCurrentDate(){
 	var today = new Date();
 	var dd = today.getDate();
@@ -88,7 +86,7 @@ function getCurrentDate(){
 	return today;
 }
 
-function distanceMatrixApiForDepartureTime(CurrentOriginID, destination, groupID,meetingTime, timesArray,maxTimeKey){
+function distanceMatrixApiForDepartureTime(CurrentOriginID, destination, groupID,meetingTime, timesArray,maxTimeKey,mapping_destination_location_to_object){
 	var request = {
 		origins: [groups[groupID][CurrentOriginID].latitude+','+groups[groupID][CurrentOriginID].longitude],
 		destinations: [destination],
@@ -105,7 +103,7 @@ function distanceMatrixApiForDepartureTime(CurrentOriginID, destination, groupID
 				groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC",message:mapping_destination_location_to_object[maxTimeKey], error:errorMessage, meeting_time:meetingTime+900 ,actual_depart_time:meetingTime-timesArray[i]}));
 			}
 	    } else{
-	    	distanceMatrixApiForDepartureTime(CurrentOriginID+1, destination,groupID, meetingTime, timesArray, maxTimeKey)
+	    	distanceMatrixApiForDepartureTime(CurrentOriginID+1, destination,groupID, meetingTime, timesArray, maxTimeKey,mapping_destination_location_to_object)
 	    }
 	  }
 	  else{
@@ -116,13 +114,15 @@ function distanceMatrixApiForDepartureTime(CurrentOriginID, destination, groupID
 	  }});
 }
 
-function getLocationWithLeastMaxTime(groupID){
+function getLocationWithLeastMaxTime(groupID,mapping_destination_location_to_maxTime, mapping_destination_location_to_object){
 	currentMaxTime = 78458734658437;
 	maxTimeKey = -1;
 	var keys = Object.keys(mapping_destination_location_to_maxTime);
+	console.log("easadaksjdf");
 	console.log(keys)
 	console.log(mapping_destination_location_to_maxTime);
 	for(var i = 0;i<Object.keys(mapping_destination_location_to_maxTime).length;i++){
+		console.log("easadaksjdf");
 		if(mapping_destination_location_to_maxTime[keys[i]]<currentMaxTime){
 			currentMaxTime = mapping_destination_location_to_maxTime[keys[i]];
 			maxTimeKey = keys[i];
@@ -134,13 +134,10 @@ function getLocationWithLeastMaxTime(groupID){
 		meetingTime = Math.max(groups_time[groupID][i]+currentMaxTime,meetingTime);
 	}
 	console.log("problem?",groupConnections[groupID].length);
-	distanceMatrixApiForDepartureTime(0,mapping_destination_location_to_object[maxTimeKey]['geometry']['location'].lat+','+mapping_destination_location_to_object[maxTimeKey]['geometry']['location'].lng,groupID,meetingTime,[],maxTimeKey);
+	distanceMatrixApiForDepartureTime(0,mapping_destination_location_to_object[maxTimeKey]['geometry']['location'].lat+','+mapping_destination_location_to_object[maxTimeKey]['geometry']['location'].lng,groupID,meetingTime,[],maxTimeKey, mapping_destination_location_to_object);
 }
 
-var groupID_index = 0;
-var location_to_object_index = 0;
-
-function getBestMeetingPoint(results, groupID){
+function getBestMeetingPoint(results, groupID,mapping_destination_location_to_maxTime,mapping_destination_location_to_object, groupID_index, location_to_object_index){
 	console.log(groupID_index, groups[groupID].length,  location_to_object_index, Object.keys(mapping_destination_location_to_object).length);
 	var i= groupID_index;
 	var j= location_to_object_index;
@@ -166,24 +163,24 @@ function getBestMeetingPoint(results, groupID){
 	    	console.log(Object.keys(mapping_destination_location_to_maxTime));
 	    	console.log(mapping_destination_location_to_maxTime);
 	    	console.log(groupID);
-	    	getLocationWithLeastMaxTime(groupID);
+	    	getLocationWithLeastMaxTime(groupID, mapping_destination_location_to_maxTime, mapping_destination_location_to_object);
 	    } else{
 	    	console.log('product',Object.keys(mapping_destination_location_to_object).length*groups[groupID].length,(groupID_index == groups[groupID].length-1),(location_to_object_index == Object.keys(mapping_destination_location_to_object).length-1),(i == groups[groupID].length-1) && (j == Object.keys(mapping_destination_location_to_object).length-1));
 	    	if(j == Object.keys(mapping_destination_location_to_object).length-1)
 	    		if((i != groups[groupID].length-1))
 	    			{
 	    				groupID_index+=1;
-	    				location_to_object_index = 0;
 	    				console.log("called with: ",groupID, groupID_index,0);
-	    				getBestMeetingPoint(results,  groupID);
+	    				getBestMeetingPoint(results,  groupID, mapping_destination_location_to_maxTime,mapping_destination_location_to_object, groupID_index, 0);
 	    			}
 	    		else{
-	    			getLocationWithLeastMaxTime(groupID);
+	    			console.log("enter?");
+	    			getLocationWithLeastMaxTime(groupID, mapping_destination_location_to_maxTime, mapping_destination_location_to_object);
 	    		}
 	    	else{
 	    		location_to_object_index+=1;
-	    		console.log("called with: ",groupID, groupID_index,location_to_object_index+1);
-	    		getBestMeetingPoint(results,  groupID);
+	    		console.log("called with: ",groupID, groupID_index,location_to_object_index);
+	    		getBestMeetingPoint(results,  groupID, mapping_destination_location_to_maxTime, mapping_destination_location_to_object, groupID_index, location_to_object_index);
 	    	}
 	    }
 	  }
@@ -198,26 +195,29 @@ function getBestMeetingPoint(results, groupID){
 
 function fillMaxIndexArray(results, groupID) {
 	var destinationArray = [];
+	var mapping_destination_location_to_object = {};
 	for (var i = 0; i < results.length; i++) {
 		console.log(results[i].geometry['location'].lat,results[i].geometry['location'].lng);
 		var location = [results[i].geometry['location'].lat,results[i].geometry['location'].lng];
 		mapping_destination_location_to_object[location] = results[i];
 	}
-	groupID_index = 0;
-	location_to_object_index = 0;
-	getBestMeetingPoint(results, groupID);
+	var groupID_index = 0;
+	var location_to_object_index = 0;
+	var mapping_destination_location_to_maxTime = {};
+	getBestMeetingPoint(results, groupID, mapping_destination_location_to_maxTime, mapping_destination_location_to_object, groupID_index, location_to_object_index);
 }
 
 function getBestLocation(groupID) {
 	var center = getCenter(groups[groupID]);
 	console.log([parseFloat(center.latitude),parseFloat(center.longitude)]);
 	results = null;
+	console.log("check here:",groups_place_type[groupID],groupID);
 	googleMapsClient.placesNearby({
       language: 'en',
       location: [parseFloat(center.latitude),parseFloat(center.longitude)],
       radius: 5000,
       opennow: true,
-      type: 'cafe',
+      type: groups_place_type[groupID],
     },  function(err, response) {
 	  if (!err) {
 	  	console.log("enter?");
@@ -231,7 +231,7 @@ function getBestLocation(groupID) {
 	    }
 	    if(results.length>5)
 	    	results = results.slice(0,5);
-	    console.log("abe kya bakwas hai?");
+	    console.log(results);
 	    fillMaxIndexArray(results, groupID);
 	  }
 	  else{
@@ -257,10 +257,11 @@ wsServer.on('request', function(request) {
       	var depat_time_array = depat_time.split(":");
       	var depat_time_seconds = (+depat_time_array[0]) * 60 * 60 + (+depat_time_array[1]) * 60;
       	groups_time[groupID] =  [depat_time_seconds];
+      	groups_place_type[groupID] = obj.place;
       	groupID+=1;
       	groupConnections[groupID-1] = []
       	groupConnections[groupID-1].push(connection);
-      	connection.sendUTF(JSON.stringify({ type: 'groupID', data: groupID-1, groupsize:obj.groupSize,lat:obj.lat, lng:obj.lng,  time:obj.time} ));
+      	connection.sendUTF(JSON.stringify({ type: 'groupID', data: groupID-1, groupsize:obj.groupSize,lat:obj.lat, lng:obj.lng,  time:obj.time, place:obj.place} ));
       	console.log("Created Group ID:"+(groupID-1));
       }
       else if(message.utf8Data.substr(0,9) == joinGroup){
