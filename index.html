@@ -78,7 +78,8 @@
 
                     }
                 } else if(obj.type == 'LC'){
-                    document.getElementById('map').style.display = 'block';
+                    if(obj.error = null){
+                        document.getElementById('map').style.display = 'block';
                     var infowindow = new google.maps.InfoWindow();
                     console.log(obj.message);
                     var map = new google.maps.Map(document.getElementById('map'), {
@@ -123,6 +124,12 @@
                     document.getElementById('meetingTime_text').innerHTML = getTime(obj.meeting_time);
                     document.getElementById('depart').style.display = "block";
                     document.getElementById('depart_text').innerHTML = getTime(obj.actual_depart_time);
+                    }
+                    else{
+                        //error handling
+                        console.log(obj.error);
+                    }
+                    
 
                 }
                 console.log("message received: " + e.data);

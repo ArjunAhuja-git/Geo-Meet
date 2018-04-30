@@ -222,6 +222,13 @@ function getBestLocation(groupID) {
 	  if (!err) {
 	  	console.log("enter?");
 	    results = response.json.results;
+	    if(results.length == 0){
+	    	var errorMessage ="0 results found";
+	    	for(var i = 0;i<groupConnections[groupID].length;i++){
+				groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC", error:errorMessage}));
+			}
+			return;
+	    }
 	    if(results.length>5)
 	    	results = results.slice(0,5);
 	    console.log(results);
