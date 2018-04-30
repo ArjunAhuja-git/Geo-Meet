@@ -189,13 +189,50 @@
           text-align: center;
           min-height: 100vh;
         }
+        input:invalid {
+          border: 1px dashed red;
+        }
+
+        /* Split the screen in half */
+        .split {
+          height: 100%;
+          width: 50%;
+          position: fixed;
+          z-index: 1;
+          top: 0;
+          overflow-x: hidden;
+          padding-top: 20px;
+        }
+
+        /* Control the left side */
+        .left {
+          left: 0;
+          background-color: #fccf40;
+        }
+
+        /* Control the right side */
+        .right {
+          right: 0;
+        }
+
+        /* If you want the content centered horizontally and vertically */
+        .centered {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          text-align: center;
+        }
+
+
     </style>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.required').clockTimePicker({required:true});
     });
   </script>
-<div class="center-screen">
+<div class="split left">
+  <div class="centered">
     <h1><i>Geo-Meet</i></h1>
     
     <button onclick="createGroup();" id="createGroupButton">Create Group</button>
@@ -228,8 +265,8 @@
     <form id = "joinGroupForm" style="display:none;">
         <p>
             <p><i>Enter group id :</i> <input id="JG_id" type="number" min="1"><i id="JG_id_text" style="display:inline;"></i></p>
-            <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><i id="JG_latitude_text" style="display:inline;"></i></p>
-            <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><i id="JG_longitude_text" style="display:inline;"></i></p>
+            <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><span id="JG_latitude_error"><i id="JG_latitude_text" style="display:inline;"></i></p>
+            <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><span id="JG_longitude_error"><i id="JG_longitude_text" style="display:inline;"></i></p>
             <p>
                 <i>Departure time:</i>
                 <input class="time required" id="JG_departure_time" type="text" value="08:45"  style="display:inline;"/>
@@ -257,8 +294,12 @@
     <p id = "mapslink" style="display:none;">
         <i>Google Maps link:</i> <a id="mapslink_text">click here to view directions</a>
     </p>
-
-    <div id="map" style="width: 500px; height: 400px; display:none;" ></div>
+</div>
+</div>
+<div class="split right">
+  <div class="centered">
+    <div id="map" style=" width: 500px; height: 400px; display:none;" ></div>
+      </div>
 </div>
 </body>
 </html>
