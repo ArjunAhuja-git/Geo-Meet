@@ -1,0 +1,247 @@
+<html>
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBil0AHMoPSe3nj0IEr-92ezrDHejb__6A&libraries=places">
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+        src="./node_modules/jquery-clock-timepicker/jquery-clock-timepicker.min.js">
+</script>
+        </head>
+<body>
+    <script type="text/javascript">
+        var sock = null;
+        var wsuri = "ws://127.0.0.1:1234";
+        var myLatitude = "";
+        var myLongitude = "";
+
+        function getTime(time){
+            var days = Math.floor(time/86400);
+            var minutes = Math.floor((time%3600)/60);
+            var hours = Math.floor(time/3600);
+            var minutes_string = minutes.toString();
+            var hours_string = hours.toString();
+            if(hours_string.length == 1){
+                hours_string = '0'+hours_string;
+            }
+            if(minutes_string.length == 1){
+                minutes_string = '0'+minutes_string;
+            }
+            return  "days:"+days+","+hours_string+":"+minutes_string;
+        }
+
+        window.onload = function() {
+
+            console.log("onload");
+
+            sock = new WebSocket(wsuri);
+
+            sock.onopen = function() {
+                console.log("connected to " + wsuri);
+            }
+
+            sock.onclose = function(e) {
+                console.log("connection closed (" + e.code + ")");
+            }
+
+            sock.onmessage = function(e) {
+                var obj = JSON.parse(e.data);
+                if(obj.type == 'groupID'){
+                    document.getElementById('groupID_text').innerHTML = obj.data;
+                    document.getElementById('CG_groupsize_text').innerHTML = obj.groupsize;
+                    document.getElementById('CG_groupsize_text').style.display = "inline";
+                    document.getElementById('CG_latitude_text').innerHTML = obj.lat;
+                    document.getElementById('CG_longitude_text').innerHTML = obj.lng;
+                    document.getElementById('CG_groupsize').style.display = "none";
+                    document.getElementById('CG_lat').style.display = "none";
+                    document.getElementById('CG_lng').style.display = "none";
+                    document.getElementById('groupID').style.display = "block";
+                    document.getElementById('submitCGButton').style.display = "none";
+                    document.getElementById('CG_departure_time').style.display = "none";
+                    document.getElementById('CG_departure_time_text').innerHTML = obj.time;
+                }
+                else if(obj.type == 'JG'){
+                    if(obj.error == null){
+                        console.log("join group validation successfull");
+                        document.getElementById('JG_latitude_text').innerHTML = obj.lat;
+                        document.getElementById('JG_longitude_text').innerHTML = obj.lng;
+                        document.getElementById('JG_id_text').innerHTML = obj.groupID;
+                        document.getElementById('JG_lat').style.display = "none";
+                        document.getElementById('JG_lng').style.display = "none";
+                        document.getElementById('JG_id').style.display = "none";
+                        document.getElementById('submitJGButton').style.display = "none";
+                        document.getElementById('JG_departure_time').style.display = "none";
+                        document.getElementById('JG_departure_time_text').innerHTML = obj.time;
+                    } else{
+
+                    }
+                } else if(obj.type == 'LC'){
+                    document.getElementById('map').style.display = 'block';
+                    var infowindow = new google.maps.InfoWindow();
+                    console.log(obj.message);
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 10,
+                        center: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
+                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                    });
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
+                        map: map
+                    });
+
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            infowindow.setContent(obj.message['name']);
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, 1));
+
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(myLatitude, myLongitude),
+                        map: map
+                    });
+
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            infowindow.setContent('myLocation');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, 2));
+
+
+                    //generate google maps link
+                    var init = "https://www.google.com/maps/dir/?api=1&";
+                    var origin = "origin="+myLatitude+','+myLongitude;
+                    var destination = "destination="+obj.message['geometry']['location'].lat+','+obj.message['geometry']['location'].lng;
+                    var travelmode = 'travelmode=driving';
+                    var link = init+origin+'&'+destination+'&'+travelmode;
+                    document.getElementById('mapslink').style.display = "block";
+                    document.getElementById('mapslink_text').href = link;
+                    document.getElementById('meetingTime').style.display = "block";
+                    document.getElementById('meetingTime_text').innerHTML = getTime(obj.meeting_time);
+                    document.getElementById('depart').style.display = "block";
+                    document.getElementById('depart_text').innerHTML = getTime(obj.actual_depart_time);
+
+                }
+                console.log("message received: " + e.data);
+            }
+        };
+
+        function send() {
+            var msg = document.getElementById('message').value;
+            sock.send(msg);
+        };
+
+        function createGroup(){
+            document.getElementById('createGroupForm').style.display = "block";
+            document.getElementById('createGroupButton').style.display = "none";
+            document.getElementById('joinGroupButton').style.display = "none";
+            document.getElementById('submitCGButton').style.display = "block";
+        };
+
+        function submitCG() {
+
+            var header = 'Header:CG';
+            var group_size = document.getElementById('CG_groupsize').value;
+            var latitude = document.getElementById('CG_lat').value;
+            var longitude = document.getElementById('CG_lng').value;
+            var depat_time = document.getElementById('JG_departure_time').value;
+            console.log(depat_time);
+            var msg = JSON.stringify({groupSize:group_size,lat:latitude,lng:longitude,time:depat_time});
+            sock.send(header+' '+msg);
+            myLongitude = longitude;
+            myLatitude = latitude;
+        };
+
+        function joinGroup(){
+            document.getElementById('joinGroupForm').style.display = "block";
+            document.getElementById('createGroupButton').style.display = "none";
+            document.getElementById('joinGroupButton').style.display = "none";
+            document.getElementById('submitJGButton').style.display = "block";
+        };
+
+        function submitJG() {
+            var header = 'Header:JG';
+            var group_id = document.getElementById('JG_id').value;
+            var latitude = document.getElementById('JG_lat').value;
+            var longitude = document.getElementById('JG_lng').value;
+            var depat_time = document.getElementById('JG_departure_time').value;
+            var msg = JSON.stringify({groupID:group_id,lat:latitude,lng:longitude,time:depat_time});
+            sock.send(header+' '+msg);
+            myLongitude = longitude;
+            myLatitude = latitude;
+        };
+    </script>
+    <style type="text/css">
+        .center-screen {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          min-height: 100vh;
+        }
+    </style>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.required').clockTimePicker({required:true});
+    });
+  </script>
+<div class="center-screen">
+    <h1><i>Geo-Meet</i></h1>
+    
+    <button onclick="createGroup();" id="createGroupButton">Create Group</button>
+    <button onclick="joinGroup();" id = "joinGroupButton">Join Group</button>
+    
+
+    <form id = "createGroupForm" style="display:none;">
+        <p>
+            <p><i>GroupSize :</i> <input id="CG_groupsize" type="number" value="2" min="2" max="15" required> <i id="CG_groupsize_text" style="display:inline;"></i></p>
+            <p><i>Enter your Latitude :</i> <input id="CG_lat" type="text" required> <i id="CG_latitude_text" style="display:inline;"></i></p>
+            <p><i>Enter your Longitude :</i> <input id="CG_lng" type="text" required> <i id="CG_longitude_text" style="display:inline;"></i></p>
+            <p>
+                <i>Departure time:</i>
+                <input class="time required" id="CG_departure_time" type="text" value="08:45" style="display:inline;"/>
+                <i id="CG_departure_time_text" style="display:inline;"></i>
+            </p>
+        </p>
+    </form>
+
+
+    <form id = "joinGroupForm" style="display:none;">
+        <p>
+            <p><i>Enter group id :</i> <input id="JG_id" type="number" min="1"><i id="JG_id_text" style="display:inline;"></i></p>
+            <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><i id="JG_latitude_text" style="display:inline;"></i></p>
+            <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><i id="JG_longitude_text" style="display:inline;"></i></p>
+            <p>
+                <i>Departure time:</i>
+                <input class="time required" id="JG_departure_time" type="text" value="08:45"  style="display:inline;"/>
+                <i id="JG_departure_time_text" style="display:inline;"></i>
+            </p>
+        </p>
+    </form>
+
+    <button onclick="submitCG();" id = "submitCGButton" style="display:none;">Submit Group Size</button>
+    <button onclick="submitJG();" id = "submitJGButton" style="display:none;">Submit Group ID</button>
+
+
+    <p id = "groupID" style="display:none;">
+        <i>GroupID :</i> <i id="groupID_text"></i>
+    </p>
+    
+    <p id = "meetingTime" style="display:none;">
+        <i>Meeting Time:</i> <i id="meetingTime_text">Meeting Time</i>
+    </p>
+
+    <p id = "depart" style="display:none;">
+        <i>Depart At:</i> <i id="depart_text">Meeting Time</i>
+    </p>
+
+    <p id = "mapslink" style="display:none;">
+        <i>Google Maps link:</i> <a id="mapslink_text">click here to view directions</a>
+    </p>
+
+    <div id="map" style="width: 500px; height: 400px; display:none;" ></div>
+</div>
+</body>
+</html>
