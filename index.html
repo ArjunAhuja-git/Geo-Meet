@@ -146,6 +146,24 @@
             document.getElementById('submitCGButton').style.display = "block";
         };
 
+        function validateLatitude(latitude){
+            if(latitude == NaN){
+                return false;
+            } else if(latitude>-91 && latitude<91){
+                return true;
+            }
+            return false;
+        }
+
+        function validateLongitude(longitude){
+            if(longitude == NaN){
+                return false;
+            } else if(longitude>-181 && longitude<181){
+                return true;
+            }
+            return false;
+        }
+
         function submitCG() {
 
             var header = 'Header:CG';
@@ -156,6 +174,28 @@
             var meeting_place_type = document.getElementById('CG_meeting_place').value;
             console.log(meeting_place_type);
             var msg = JSON.stringify({groupSize:group_size,lat:latitude,lng:longitude,time:depart_time,place:meeting_place_type});
+            var enter = false;
+            if(!validateLatitude(Number(latitude))){
+                console.log("validateLatitude failure");
+                //document.getElementById('CG_latitude_error').innerHTML = "!enter correct value";
+                document.getElementById('CG_lat').classList.add('error_input');
+                enter = true;
+            } 
+            if(!validateLongitude(Number(longitude))){
+                console.log("validateLongitude failure");
+                //document.getElementById('CG_longitude_error').innerHTML = "!enter correct value";
+                document.getElementById('CG_lng').classList.add('error_input');
+                enter = true;
+            } 
+            if(enter){
+                return;
+            }
+            document.getElementById('CG_latitude_error').innerHTML = "";
+            document.getElementById('CG_longitude_error').innerHTML = "";
+            if(document.getElementById('CG_lat').classList.contains('error_input'))
+                document.getElementById('CG_lat').classList.remove('error_input');
+            if(document.getElementById('CG_lng').classList.contains('error_input'))
+                document.getElementById('CG_lng').classList.remove('error_input');
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
@@ -174,6 +214,28 @@
             var latitude = document.getElementById('JG_lat').value;
             var longitude = document.getElementById('JG_lng').value;
             var depart_time = document.getElementById('JG_departure_time').value;
+            var enter = false;
+            if(!validateLatitude(Number(latitude))){
+                console.log("validateLatitude failure");
+                //document.getElementById('JG_latitude_error').innerHTML = "!enter correct value";
+                document.getElementById('JG_lat').classList.add('error_input');
+                enter = true;
+            } 
+            if(!validateLongitude(Number(longitude))){
+                console.log("validateLongitude failure");
+                //document.getElementById('JG_longitude_error').innerHTML = "!enter correct value";
+                document.getElementById('JG_lng').classList.add('error_input');
+                enter = true;
+            } 
+            if(enter){
+                return;
+            }
+            document.getElementById('JG_latitude_error').innerHTML = "";
+            document.getElementById('JG_longitude_error').innerHTML = "";
+            if(document.getElementById('JG_lat').classList.contains('error_input'))
+                document.getElementById('JG_lat').classList.remove('error_input');
+            if(document.getElementById('JG_lng').classList.contains('error_input'))
+                document.getElementById('JG_lng').classList.remove('error_input');
             var msg = JSON.stringify({groupID:group_id,lat:latitude,lng:longitude,time:depart_time});
             sock.send(header+' '+msg);
             myLongitude = longitude;
@@ -223,6 +285,12 @@
           transform: translate(-50%, -50%);
           text-align: center;
         }
+        .error{
+            color: red;
+        }
+        .error_input{
+            border: 1px dashed red;
+        }
 
 
     </style>
@@ -242,8 +310,8 @@
     <form id = "createGroupForm" style="display:none;">
         <p>
             <p><i>GroupSize :</i> <input id="CG_groupsize" type="number" value="2" min="2" max="15" required> <i id="CG_groupsize_text" style="display:inline;"></i></p>
-            <p><i>Enter your Latitude :</i> <input id="CG_lat" type="text" required> <i id="CG_latitude_text" style="display:inline;"></i></p>
-            <p><i>Enter your Longitude :</i> <input id="CG_lng" type="text" required> <i id="CG_longitude_text" style="display:inline;"></i></p>
+            <p><i>Enter your Latitude :</i> <input id="CG_lat" type="text" required><i class="error" id="CG_latitude_error"></i> <i id="CG_latitude_text" style="display:inline;"></i></p>
+            <p><i>Enter your Longitude :</i> <input id="CG_lng" type="text" required><i class="error" id="CG_longitude_error"></i> <i id="CG_longitude_text" style="display:inline;"></i></p>
             <p>
                 <i>Departure time:</i>
                 <input class="time required" id="CG_departure_time" type="text" value="08:45" style="display:inline;"/>
@@ -265,8 +333,8 @@
     <form id = "joinGroupForm" style="display:none;">
         <p>
             <p><i>Enter group id :</i> <input id="JG_id" type="number" min="1"><i id="JG_id_text" style="display:inline;"></i></p>
-            <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><span id="JG_latitude_error"><i id="JG_latitude_text" style="display:inline;"></i></p>
-            <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><span id="JG_longitude_error"><i id="JG_longitude_text" style="display:inline;"></i></p>
+            <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><i id="JG_latitude_error"></i><i id="JG_latitude_text" style="display:inline;"></i></p>
+            <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><i id="JG_longitude_error"></i><i id="JG_longitude_text" style="display:inline;"></i></p>
             <p>
                 <i>Departure time:</i>
                 <input class="time required" id="JG_departure_time" type="text" value="08:45"  style="display:inline;"/>
