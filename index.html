@@ -78,59 +78,57 @@
 
                     }
                 } else if(obj.type == 'LC'){
-                    if(obj.error = null){
+                    if(obj.error == null){
                         document.getElementById('map').style.display = 'block';
-                    var infowindow = new google.maps.InfoWindow();
-                    console.log(obj.message);
-                    var map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 10,
-                        center: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
-                        mapTypeId: google.maps.MapTypeId.ROADMAP
-                    });
-                    marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
-                        map: map
-                    });
+                        var infowindow = new google.maps.InfoWindow();
+                        console.log(obj.message);
+                        var map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 10,
+                            center: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        });
+                        marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
+                            map: map
+                        });
 
-                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
-                        return function() {
-                            infowindow.setContent(obj.message['name']);
-                            infowindow.open(map, marker);
-                        }
-                    })(marker, 1));
+                        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                            return function() {
+                                infowindow.setContent(obj.message['name']);
+                                infowindow.open(map, marker);
+                            }
+                        })(marker, 1));
 
-                    marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(myLatitude, myLongitude),
-                        map: map
-                    });
+                        marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(myLatitude, myLongitude),
+                            map: map
+                        });
 
-                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
-                        return function() {
-                            infowindow.setContent('myLocation');
-                            infowindow.open(map, marker);
-                        }
-                    })(marker, 2));
+                        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                            return function() {
+                                infowindow.setContent('myLocation');
+                                infowindow.open(map, marker);
+                            }
+                        })(marker, 2));
 
 
-                    //generate google maps link
-                    var init = "https://www.google.com/maps/dir/?api=1&";
-                    var origin = "origin="+myLatitude+','+myLongitude;
-                    var destination = "destination="+obj.message['geometry']['location'].lat+','+obj.message['geometry']['location'].lng;
-                    var travelmode = 'travelmode=driving';
-                    var link = init+origin+'&'+destination+'&'+travelmode;
-                    document.getElementById('mapslink').style.display = "block";
-                    document.getElementById('mapslink_text').href = link;
-                    document.getElementById('meetingTime').style.display = "block";
-                    document.getElementById('meetingTime_text').innerHTML = getTime(obj.meeting_time);
-                    document.getElementById('depart').style.display = "block";
-                    document.getElementById('depart_text').innerHTML = getTime(obj.actual_depart_time);
+                        //generate google maps link
+                        var init = "https://www.google.com/maps/dir/?api=1&";
+                        var origin = "origin="+myLatitude+','+myLongitude;
+                        var destination = "destination="+obj.message['geometry']['location'].lat+','+obj.message['geometry']['location'].lng;
+                        var travelmode = 'travelmode=driving';
+                        var link = init+origin+'&'+destination+'&'+travelmode;
+                        document.getElementById('mapslink').style.display = "block";
+                        document.getElementById('mapslink_text').href = link;
+                        document.getElementById('meetingTime').style.display = "block";
+                        document.getElementById('meetingTime_text').innerHTML = getTime(obj.meeting_time);
+                        document.getElementById('depart').style.display = "block";
+                        document.getElementById('depart_text').innerHTML = getTime(obj.actual_depart_time);
                     }
                     else{
                         //error handling
                         console.log(obj.error);
                     }
-                    
-
                 }
                 console.log("message received: " + e.data);
             }
