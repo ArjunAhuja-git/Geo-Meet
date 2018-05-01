@@ -209,7 +209,6 @@
             var longitude = document.getElementById('CG_lng').value;
             var depart_time = document.getElementById('CG_departure_time').value;
             var meeting_place_type = document.getElementById('CG_meeting_place').value;
-            console.log(meeting_place_type);
             var msg = JSON.stringify({groupSize:group_size,lat:latitude,lng:longitude,time:depart_time,place:meeting_place_type});
             var enter = false;
             if(!validateLatitude(Number(latitude))){
@@ -305,7 +304,7 @@
         /* Control the left side */
         .left {
           left: 0;
-          background-color: #fccf40;
+          background-color: #FFA07A;
 
         }
 
