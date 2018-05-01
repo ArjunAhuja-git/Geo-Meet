@@ -116,7 +116,7 @@
                         var map = new google.maps.Map(document.getElementById('map'), {
                             zoom: 10,
                             center: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
-                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                            mapTypeId: google.maps.MapTypeId.TERRAIN
                         });
                         marker = new google.maps.Marker({
                             position: new google.maps.LatLng(obj.message['geometry']['location'].lat, obj.message['geometry']['location'].lng),
