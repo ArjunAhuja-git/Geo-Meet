@@ -7,6 +7,7 @@
 <script
         src="./node_modules/jquery-clock-timepicker/jquery-clock-timepicker.min.js">
 </script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 .loader {
@@ -58,7 +59,11 @@
             console.log("onload");
 
             sock = new WebSocket(wsuri);
-
+            var map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 2,
+                            center: new google.maps.LatLng(17.619416, 78.082308),
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        });
             sock.onopen = function() {
                 console.log("connected to " + wsuri);
             }
@@ -225,6 +230,7 @@
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
+            document.getElementById('map').style.display="none";
             document.getElementById('loading').style.display="block";
         };
 
@@ -267,18 +273,11 @@
             sock.send(header+' '+msg);
             myLongitude = longitude;
             myLatitude = latitude;
+            document.getElementById('map').style.display="none";
             document.getElementById('loading').style.display="block";
         };
     </script>
     <style type="text/css">
-        .center-screen {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          text-align: center;
-          min-height: 100vh;
-        }
         input:invalid {
           border: 1px dashed red;
         }
@@ -298,6 +297,7 @@
         .left {
           left: 0;
           background-color: #fccf40;
+
         }
 
         /* Control the right side */
@@ -312,12 +312,21 @@
           left: 50%;
           transform: translate(-50%, -50%);
           text-align: center;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          display: flex;
         }
         .error{
             color: red;
         }
         .error_input{
             border: 1px dashed red;
+        }
+
+        .mapClass{
+            width: 1000px;
+            height: 1000px;
         }
 
 
@@ -372,8 +381,8 @@
         </p>
     </form>
 
-    <button onclick="submitCG();" id = "submitCGButton" style="display:none;">Submit Group Size</button>
-    <button onclick="submitJG();" id = "submitJGButton" style="display:none;">Submit Group ID</button>
+    <button onclick="submitCG();" id = "submitCGButton" style="display:none;">Submit Group Create Request</button>
+    <button onclick="submitJG();" id = "submitJGButton" style="display:none;">Submit Group Join Request</button>
 
 
     <p id = "groupID" style="display:none;">
@@ -401,7 +410,7 @@
     <h2>Loading</h2>
 
     <div class="loader"></div></div>
-    <div id="map" style=" width: 600px; height: 800px; display:none;" ></div>
+    <div id="map" class="mapClass"></div>
       </div>
 </div>
 </body>
