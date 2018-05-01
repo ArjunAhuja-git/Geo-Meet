@@ -103,7 +103,11 @@
                         document.getElementById('JG_departure_time').style.display = "none";
                         document.getElementById('JG_departure_time_text').innerHTML = obj.time;
                     } else{
-
+                        console.log("join group validation not successfull");
+                        document.getElementById('group_id_error').innerHTML = obj.error;
+                        document.getElementById('loading').style.display="none";
+                        document.getElementById('map').style.display = 'block';
+                        document.getElementById('JG_id').classList.add('error_input');
                     }
                 } else if(obj.type == 'LC'){
                     if(obj.error == null){
@@ -158,7 +162,9 @@
                     }
                     else{
                         //error handling
-                        console.log(obj.error);
+                        document.getElementById('loading').style.display="none";
+                        document.getElementById('map').style.display = 'block';
+                        alert(obj.error);
                     }
                 }
                 console.log("message received: " + e.data);
@@ -269,6 +275,9 @@
                 document.getElementById('JG_lat').classList.remove('error_input');
             if(document.getElementById('JG_lng').classList.contains('error_input'))
                 document.getElementById('JG_lng').classList.remove('error_input');
+            if(document.getElementById('JG_id').classList.contains('error_input'))
+                document.getElementById('JG_id').classList.remove('error_input');
+            document.getElementById('group_id_error').innerHTML = "";
             var msg = JSON.stringify({groupID:group_id,lat:latitude,lng:longitude,time:depart_time});
             sock.send(header+' '+msg);
             myLongitude = longitude;
@@ -319,6 +328,7 @@
         }
         .error{
             color: red;
+            font-size:10px;
         }
         .error_input{
             border: 1px dashed red;
@@ -370,7 +380,7 @@
 
     <form id = "joinGroupForm" style="display:none;">
         <p>
-            <p><i>Enter group id :</i> <input id="JG_id" type="number" min="1"><i id="JG_id_text" style="display:inline;"></i></p>
+            <p><i>Enter group id :</i> <input id="JG_id" type="number" min="1"> <i class="error" id="group_id_error"></i><i id="JG_id_text" style="display:inline;"></i></p>
             <p><i>Enter Latitude :</i> <input id="JG_lat" type="text"><i id="JG_latitude_error"></i><i id="JG_latitude_text" style="display:inline;"></i></p>
             <p><i>Enter Longitude :</i> <input id="JG_lng" type="text"><i id="JG_longitude_error"></i><i id="JG_longitude_text" style="display:inline;"></i></p>
             <p>

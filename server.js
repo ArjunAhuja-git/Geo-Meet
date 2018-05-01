@@ -122,7 +122,6 @@ function getLocationWithLeastMaxTime(groupID,mapping_destination_location_to_max
 	console.log(keys)
 	console.log(mapping_destination_location_to_maxTime);
 	for(var i = 0;i<Object.keys(mapping_destination_location_to_maxTime).length;i++){
-		console.log("easadaksjdf");
 		if(mapping_destination_location_to_maxTime[keys[i]]<currentMaxTime){
 			currentMaxTime = mapping_destination_location_to_maxTime[keys[i]];
 			maxTimeKey = keys[i];
@@ -186,7 +185,7 @@ function getBestMeetingPoint(results, groupID,mapping_destination_location_to_ma
 	  }
 	  else{
 	  	for(var i = 0;i<groupConnections[groupID].length;i++){
-			groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC",message:null,error:"Couldn't find distance between some points"}));
+			groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC",error:"Couldn't find distance between some points"}));
 		}
 	  	console.log("some problem occured",err);
 	  }});
@@ -223,7 +222,7 @@ function getBestLocation(groupID) {
 	  	console.log("enter?");
 	    results = response.json.results;
 	    if(results.length == 0){
-	    	var errorMessage ="0 results found";
+	    	var errorMessage ="No results found";
 	    	for(var i = 0;i<groupConnections[groupID].length;i++){
 				groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC", error:errorMessage}));
 			}
@@ -235,6 +234,9 @@ function getBestLocation(groupID) {
 	    fillMaxIndexArray(results, groupID);
 	  }
 	  else{
+	  	for(var i = 0;i<groupConnections[groupID].length;i++){
+			groupConnections[groupID][i].sendUTF(JSON.stringify({type: "LC", error:"Some error occured please try again."}));
+		}
 	  	console.log("error",err);
 	  }
 	});
