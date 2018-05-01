@@ -427,7 +427,7 @@
             font-size: 50px;
         }
 
-        input[type=text], select, textarea {
+        select, textarea {
             width: 100%;
             padding: 6px;
             border: 2px solid #ccc;
@@ -435,6 +435,13 @@
             resize: vertical;
             text-align: center;
             font-size: 15px;
+        }
+
+        input{
+            width: 100%;
+            border-radius: 6px;
+            text-align: center;
+            padding: 6px;
         }
     </style>
   <script type="text/javascript">
@@ -453,15 +460,15 @@
     <form id = "createGroupForm" style="display:none;">
         <p>
             <p><div class="row box"><div class="column box" style="display:inline;"><i>GroupSize :</i></div><div class="column box"> <input id="CG_groupsize" type="number" value="2" min="2" max="15" required> <i id="CG_groupsize_text" style="display:inline;"></i></div></div></p>
-            <p><div class="row box"><div class="column box" style="display:inline;"><i>Enter your Latitude :</i></div><div class="column box"> <input id="CG_lat" type="text" required><i class="error" id="CG_latitude_error"></i> <i id="CG_latitude_text" style="display:inline;"></i></div></div></p>
-            <p><div class="row box"><div class="column box" style="display:inline;"><i>Enter your Longitude :</i></div><div class="column box"> <input id="CG_lng" type="text" required><i class="error" id="CG_longitude_error"></i> <i id="CG_longitude_text" style="display:inline;"></i></div></div></p>
+            <p><div class="row box"><div class="column box" style="display:inline;"><i>Latitude :</i></div><div class="column box"> <input id="CG_lat" type="text" required><i class="error" id="CG_latitude_error"></i> <i id="CG_latitude_text" style="display:inline;"></i></div></div></p>
+            <p><div class="row box"><div class="column box" style="display:inline;"><i>Longitude :</i></div><div class="column box"> <input id="CG_lng" type="text" required><i class="error" id="CG_longitude_error"></i> <i id="CG_longitude_text" style="display:inline;"></i></div></div></p>
             <p><div class="row box"><div class="column box" style="display:inline;">
                 <i>Departure time:</i></div><div class="column box">
                 <input class="time required" id="CG_departure_time" type="text" value="08:45" style="display:inline;"/>
                 <i id="CG_departure_time_text" style="display:inline;"></i></div></div>
             </p>
             <p><div class="row box"><div class="column box" style="display:inline;">
-                <i>Meeting Place Type: </i></div><div class="column box">
+                <i>Meeting place type: </i></div><div class="column box">
                 <select id="CG_meeting_place" style="display:inline;">
                   <option value="restaurant">Restaurant</option>
                   <option value="cafe">Cafe</option>
@@ -474,9 +481,9 @@
 
     <form id = "joinGroupForm" style="display:none;">
         <p>
-            <p><div class="row box"><div class="column box" style="display:inline;"><i>Enter group id :</i></div><div class="column box" style="display:inline;"><input id="JG_id" type="number" min="1"> <i class="error" id="group_id_error"></i><i id="JG_id_text" style="display:inline;"></i></div></div></p>
-            <p><div class="row box"><div class="column box" style="display:inline;"><i>Enter Latitude :</i></div><div class="column box"><input id="JG_lat" type="text"><i id="JG_latitude_error"></i><i id="JG_latitude_text" style="display:inline;"></i></div></div></p>
-            <p><div class="row box"><div class="column box" style="display:inline;"><i>Enter Longitude :</i></div> <div class="column box"><input id="JG_lng" type="text"><i id="JG_longitude_error"></i><i id="JG_longitude_text" style="display:inline;"></i></div></div></p>
+            <p><div class="row box"><div class="column box" style="display:inline;"><i>Group id :</i></div><div class="column box" style="display:inline;"><input id="JG_id" type="number" min="1"> <i class="error" id="group_id_error"></i><i id="JG_id_text" style="display:inline;"></i></div></div></p>
+            <p><div class="row box"><div class="column box" style="display:inline;"><i>Latitude :</i></div><div class="column box"><input id="JG_lat" type="text"><i id="JG_latitude_error"></i><i id="JG_latitude_text" style="display:inline;"></i></div></div></p>
+            <p><div class="row box"><div class="column box" style="display:inline;"><i>Longitude :</i></div> <div class="column box"><input id="JG_lng" type="text"><i id="JG_longitude_error"></i><i id="JG_longitude_text" style="display:inline;"></i></div></div></p>
             <p>
                 <div class="row box">
                     <div class="column box" style="display:inline;">
@@ -495,19 +502,19 @@
 
 
     <p id = "groupID" style="display:none;">
-        <i>GroupID :</i> <i id="groupID_text"></i>
+        <i>Group id :</i> <i id="groupID_text"></i>
     </p>
     
     <p id = "meetingTime" style="display:none;">
-        <i>Meeting Time:</i> <i id="meetingTime_text">Meeting Time</i>
+        <i>Meeting time:</i> <i id="meetingTime_text">Meeting Time</i>
     </p>
 
     <p id = "depart" style="display:none;">
-        <i>Depart At:</i> <i id="depart_text">Meeting Time</i>
+        <i>Depart at:</i> <i id="depart_text">Meeting Time</i>
     </p>
 
     <p id = "mapslink" style="display:none;">
-        <i>Google Maps link:</i> <a id="mapslink_text">click here to view directions</a>
+        <i>Google maps link:</i> <a id="mapslink_text">click here to view directions</a>
     </p>
 </div>
 </div>
